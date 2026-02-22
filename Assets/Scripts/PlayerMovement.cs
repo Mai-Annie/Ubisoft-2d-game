@@ -11,6 +11,8 @@ public class PlayerMovement: MonoBehaviour
     private PlayerInputActions inputActions;
     private Vector2 moveInput;
     private bool isGrounded;
+    private bool isAnchored;
+	
 
     void Awake()
     {
@@ -51,6 +53,7 @@ public class PlayerMovement: MonoBehaviour
     void FixedUpdate()
     {
         // Apply horizontal movement
+        if (isAnchored) return; // If anchored, don't allow movement
         rb.linearVelocity = new Vector2(moveInput.x * speed, rb.linearVelocity.y);
     }
 
@@ -78,5 +81,10 @@ public class PlayerMovement: MonoBehaviour
         {
             isGrounded = false;
         }
+    }
+    
+    //anchor panda until the other panda picks up the bamboo
+    void SetAnchored(bool anchored){
+        isAnchored = anchored;
     }
 }
