@@ -54,7 +54,7 @@
                     "path": "<Keyboard>/w",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": ";PlayerOne",
                     "action": "Move",
                     "isComposite": false,
                     "isPartOfComposite": true
@@ -65,7 +65,7 @@
                     "path": "<Keyboard>/s",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": ";PlayerOne",
                     "action": "Move",
                     "isComposite": false,
                     "isPartOfComposite": true
@@ -76,7 +76,7 @@
                     "path": "<Keyboard>/a",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": ";PlayerOne",
                     "action": "Move",
                     "isComposite": false,
                     "isPartOfComposite": true
@@ -87,7 +87,62 @@
                     "path": "<Keyboard>/d",
                     "interactions": "",
                     "processors": "",
+                    "groups": ";PlayerOne",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "2D Vector",
+                    "id": "80624d80-6c59-4b57-bdf8-27ca08a89dcd",
+                    "path": "2DVector",
+                    "interactions": "",
+                    "processors": "",
                     "groups": "",
+                    "action": "Move",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "up",
+                    "id": "9eba6c95-07f6-42ca-abd8-3749873bd584",
+                    "path": "<Keyboard>/upArrow",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";PlayerTwo",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "down",
+                    "id": "acfa8fee-9b1d-40b6-bfe4-9061234aac1f",
+                    "path": "<Keyboard>/downArrow",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";PlayerTwo",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "left",
+                    "id": "616e6dca-3467-4511-8d9f-5d0d1f8ef152",
+                    "path": "<Keyboard>/leftArrow",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";PlayerTwo",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "right",
+                    "id": "86233bde-81b5-448c-8b82-f0181ccc3347",
+                    "path": "<Keyboard>/rightArrow",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";PlayerTwo",
                     "action": "Move",
                     "isComposite": false,
                     "isPartOfComposite": true
@@ -109,7 +164,18 @@
                     "path": "<Keyboard>/space",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": ";PlayerOne",
+                    "action": "Jump",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "bf7a8f4c-1cfa-4dc4-bc35-9ccb658ae178",
+                    "path": "<Keyboard>/rightShift",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";PlayerTwo",
                     "action": "Jump",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -117,5 +183,16 @@
             ]
         }
     ],
-    "controlSchemes": []
+    "controlSchemes": [
+        {
+            "name": "PlayerOne",
+            "bindingGroup": "PlayerOne",
+            "devices": []
+        },
+        {
+            "name": "PlayerTwo",
+            "bindingGroup": "PlayerTwo",
+            "devices": []
+        }
+    ]
 }

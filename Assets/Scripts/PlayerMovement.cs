@@ -1,11 +1,11 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class PlayerMovement : MonoBehaviour
+public class PlayerMovement: MonoBehaviour
 {
     [SerializeField] private float speed = 5f;
     [SerializeField] private float jumpForce = 10f;
-    [SerializeField] private bool isPlayerOne = true; // Toggle in Inspector for Player 2
+    [SerializeField] private bool isPlayerOne;
 
     private Rigidbody2D rb;
     private PlayerInputActions inputActions;
@@ -16,6 +16,14 @@ public class PlayerMovement : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         inputActions = new PlayerInputActions();
+        if (isPlayerOne)
+        {
+            inputActions.bindingMask = InputBinding.MaskByGroup("PlayerOne");
+        }
+        else
+        {
+            inputActions.bindingMask = InputBinding.MaskByGroup("PlayerTwo");
+        }
     }
 
     void OnEnable()
@@ -36,7 +44,7 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
-        // Read the move input (WASD for now)
+        // Read the move input (WASD or Arrow keys)
         moveInput = inputActions.Player.Move.ReadValue<Vector2>();
     }
 
