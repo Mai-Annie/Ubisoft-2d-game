@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class PlayerMovement: MonoBehaviour
+public class PlayerMovement : MonoBehaviour
 {
     [SerializeField] private float speed = 5f;
     [SerializeField] private float jumpForce = 10f;
@@ -12,7 +12,7 @@ public class PlayerMovement: MonoBehaviour
     private Vector2 moveInput;
     private bool isGrounded;
     private bool isAnchored;
-	
+
 
     void Awake()
     {
@@ -82,9 +82,10 @@ public class PlayerMovement: MonoBehaviour
             isGrounded = false;
         }
     }
-    
-    //anchor panda until the other panda picks up the bamboo
-    void SetAnchored(bool anchored){
+
+    //Method to anchor when grabbing bamboo, and unanchor when both ends are grabbed
+    void SetAnchored(bool anchored)
+    {
         isAnchored = anchored;
     }
 }

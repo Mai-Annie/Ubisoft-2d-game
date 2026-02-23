@@ -484,6 +484,7 @@ GameObject:
   - component: {fileID: 917994642}
   - component: {fileID: 917994641}
   - component: {fileID: 917994640}
+  - component: {fileID: 917994644}
   m_Layer: 0
   m_Name: Bamboo
   m_TagString: Untagged
@@ -640,6 +641,26 @@ Transform:
   - {fileID: 831432545}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!232 &917994644
+DistanceJoint2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 917994639}
+  m_Enabled: 1
+  serializedVersion: 4
+  m_EnableCollision: 0
+  m_ConnectedRigidBody: {fileID: 0}
+  m_BreakForce: Infinity
+  m_BreakTorque: Infinity
+  m_BreakAction: 3
+  m_AutoConfigureConnectedAnchor: 0
+  m_Anchor: {x: 0, y: 0}
+  m_ConnectedAnchor: {x: 0, y: 0}
+  m_AutoConfigureDistance: 1
+  m_Distance: 4.6905117
+  m_MaxDistanceOnly: 0
 --- !u!1 &1338786017
 GameObject:
   m_ObjectHideFlags: 0
