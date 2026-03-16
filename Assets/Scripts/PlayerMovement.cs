@@ -46,14 +46,15 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
-        // Read the move input (WASD or Arrow keys)
+        // Read the move input (WASD or Arrow keys) so that we can get every frame for smooth movement
+        //put clumsiness here for precise physics 
+        if (isAnchored) return; // If anchored, don't allow movement
         moveInput = inputActions.Player.Move.ReadValue<Vector2>();
     }
 
     void FixedUpdate()
     {
         // Apply horizontal movement
-        if (isAnchored) return; // If anchored, don't allow movement
         rb.linearVelocity = new Vector2(moveInput.x * speed, rb.linearVelocity.y);
     }
 
@@ -84,7 +85,7 @@ public class PlayerMovement : MonoBehaviour
     }
 
     //Method to anchor when grabbing bamboo, and unanchor when both ends are grabbed
-    void SetAnchored(bool anchored)
+    public void SetAnchored(bool anchored)
     {
         isAnchored = anchored;
     }
