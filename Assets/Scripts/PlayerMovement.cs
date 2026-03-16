@@ -55,6 +55,7 @@ public class PlayerMovement : MonoBehaviour
     void FixedUpdate()
     {
         // Apply horizontal movement
+        if (isAnchored) return; 
         rb.linearVelocity = new Vector2(moveInput.x * speed, rb.linearVelocity.y);
     }
 

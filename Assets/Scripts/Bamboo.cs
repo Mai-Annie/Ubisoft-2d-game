@@ -2,37 +2,78 @@ using UnityEngine;
 
 public class Bamboo : MonoBehaviour
 {
-    private int grabbedEnd = 0; // 0 = none, 1 = left, 2 = right
-    private PlayerMovement playerGrabbed;
-    private DistanceJoint2D joint;
+    // Store references to each player holding an end, instead of just a counter
+    private PlayerMovement leftEndPlayer = null;
+    private PlayerMovement rightEndPlayer = null;
+
+    private DistanceJoint2D leftJoint;
+    private DistanceJoint2D rightJoint;
+
     public void SetGrabbedEnd(PlayerMovement player)
     {
-        Debug.Log("SetGrabbedEnd called, grabbedEnd count: " + grabbedEnd);
-        grabbedEnd += 1;
+        Debug.Log("SetGrabbedEnd called by: " + player.name);
 
-        if (grabbedEnd < 2)
+        // Assign the player to whichever end is still free
+        if (leftEndPlayer == null)
         {
             Debug.Log("First end grabbed, anchoring player");
-            // call method to anchor player movement
+            leftEndPlayer = player;
+
+            // Anchor the first player until the second one grabs the other end
+            GetComponent<Rigidbody2D>().constraints = RigidbodyConstraints2D.FreezeAll;
             player.SetAnchored(true);
-            playerGrabbed = player;
         }
         else
         {
             Debug.Log("Second end grabbed, linking players");
-            // both ends are grabbed, call method to unanchor the other player movement
-            playerGrabbed.SetAnchored(false);
+            rightEndPlayer = player;
 
-            //physically connect the bamboo to the player using a joint
+            // Both ends are now grabbed, release the first player's anchor
+            leftEndPlayer.SetAnchored(false);
+            GetComponent<Rigidbody2D>().constraints = RigidbodyConstraints2D.None;
+
+            // Physically link both players to the bamboo using joints
             LinkPlayers();
         }
     }
 
     private void LinkPlayers()
     {
-        joint = gameObject.AddComponent<DistanceJoint2D>();
-        //add damper and elasticity to the joint for better feel
+        Rigidbody2D bambooRb = GetComponent<Rigidbody2D>();
 
+        // Get each player's Rigidbody2D so the joint can connect them
+        Rigidbody2D leftRb = leftEndPlayer.GetComponent<Rigidbody2D>();
+        Rigidbody2D rightRb = rightEndPlayer.GetComponent<Rigidbody2D>();
+
+        if (leftRb == null || rightRb == null || bambooRb == null)
+        {
+            Debug.LogError("Missing Rigidbody2D on one of the objects!");
+            return;
+        }
+
+        // Create a joint on the bamboo connecting it to the left player
+        leftJoint = gameObject.AddComponent<DistanceJoint2D>();
+        leftJoint.connectedBody = leftRb;
+        leftJoint.autoConfigureDistance = true;
+
+        // Create a joint on the bamboo connecting it to the right player
+        rightJoint = gameObject.AddComponent<DistanceJoint2D>();
+        rightJoint.connectedBody = rightRb;
+        rightJoint.autoConfigureDistance = true;
+
+        Debug.Log("Players linked to bamboo!");
     }
-    //Todo: unlink players
+
+    public void UnlinkPlayers()
+    {
+        // Remove the joints to disconnect the players from the bamboo
+        if (leftJoint != null) Destroy(leftJoint);
+        if (rightJoint != null) Destroy(rightJoint);
+
+        // Clear the stored player references so the bamboo can be grabbed again
+        leftEndPlayer = null;
+        rightEndPlayer = null;
+
+        Debug.Log("Players unlinked from bamboo.");
+    }
 }

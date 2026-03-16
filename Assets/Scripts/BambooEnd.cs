@@ -3,6 +3,7 @@ using UnityEngine;
 public class BambooEnd : MonoBehaviour
 {
     public bool isGrabbed = false;
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
         Debug.Log("Something entered the trigger");
@@ -12,21 +13,24 @@ public class BambooEnd : MonoBehaviour
             Debug.Log("Player detected on: " + gameObject.name);
             isGrabbed = true;
 
-            //prevent sibling from triggering the grab logic
-            if (gameObject.name == "LeftEnd")
+            // Get the PlayerMovement from the colliding player
+            PlayerMovement player = collision.GetComponent<PlayerMovement>();
+            if (player == null)
             {
-                transform.parent.Find("RightEnd").GetComponent<BambooEnd>().isGrabbed = true;
-            }
-            else if (gameObject.name == "RightEnd")
-            {
-                transform.parent.Find("LeftEnd").GetComponent<BambooEnd>().isGrabbed = true;
+                Debug.LogError("PlayerMovement not found on colliding object!");
+                return;
             }
 
-            // tell parent bamboo to which end was grabbed by which panda
-            transform.parent.GetComponent<Bamboo>().SetGrabbedEnd(collision.GetComponent<PlayerMovement>()); //BREAK THIS UP
+            // Get the Bamboo script from the parent and report the grab
+            Bamboo bamboo = transform.parent.GetComponent<Bamboo>();
+            if (bamboo == null)
+            {
+                Debug.LogError("Bamboo script not found on parent object!");
+                return;
+            }
+            
+            bamboo.SetGrabbedEnd(player);
         }
-
     }
 }
-
 
