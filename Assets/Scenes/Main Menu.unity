@@ -762,8 +762,9 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3d1118b0c721e45fca5ab25a553d7489, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: '::'
+  m_EditorClassIdentifier: Assembly-CSharp::MainMenuManager
   _debugMode: 0
+  levelDatabase: {fileID: 11400000, guid: d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6, type: 3}
 --- !u!4 &1492584706
 Transform:
   m_ObjectHideFlags: 0

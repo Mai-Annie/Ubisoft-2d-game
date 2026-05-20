@@ -105,12 +105,12 @@ Two players control pandas on a shared keyboard (P1: WASD/Space, P2: Arrow Keys/
 
 ## What's Next
 
-- [ ] **Level data system** — data-driven level management per mentor feedback
-- [ ] **Drop / unlink mechanic** — players can release bamboo
-- [ ] **Clumsiness** — mobility modifier tied to bamboo load (design complete, physics tuning pending)
-- [ ] **Bamboo sizes** — small / medium / large with different point values and carry penalties
-- [ ] **5–10 levels** with escalating difficulty and varied obstacles
-- [ ] **UI** — score, timer, co-op feedback (deprioritized)
+- [x] **Level data system** — LevelData and LevelDatabase ScriptableObjects in Assets/Data/; wired into all scenes
+- [x] **Drop / unlink mechanic** — P1: E, P2: Right Ctrl; re-anchors remaining player, freezes bamboo
+- [x] **Clumsiness** — sluggish input lerp + speed reduction tied to bamboo size; applied on LinkPlayers
+- [x] **Bamboo sizes** — Small (10pts/0.2), Medium (25pts/0.45), Large (50pts/0.7)
+- [x] **3 levels** — L1: small bamboo open room 60s; L2: medium bamboo one wall 90s; L3: large bamboo two walls 120s
+- [x] **UI** — runtime HUD with timer, score, and message overlay (TMPro)
 - [ ] **Real art assets** — bold flat style with strong outlines; replace placeholders
 
 ---

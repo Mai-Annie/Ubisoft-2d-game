@@ -1215,7 +1215,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
-  levelDatabase: {fileID: 0}
+  levelDatabase: {fileID: 11400000, guid: d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6, type: 3}
   levelTimeLimit: 60
 --- !u!114 &500000004
 MonoBehaviour:
