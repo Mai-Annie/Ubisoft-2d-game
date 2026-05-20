@@ -2,78 +2,136 @@ using UnityEngine;
 
 public class Bamboo : MonoBehaviour
 {
-    // Store references to each player holding an end, instead of just a counter
-    private PlayerMovement leftEndPlayer = null;
-    private PlayerMovement rightEndPlayer = null;
+    public enum BambooSize { Small, Medium, Large }
 
+    [SerializeField] private BambooSize size = BambooSize.Small;
+
+    private static readonly int[] pointValues = { 10, 25, 50 };
+    private static readonly float[] clumsinessValues = { 0.2f, 0.45f, 0.7f };
+
+    private PlayerMovement leftEndPlayer;
+    private PlayerMovement rightEndPlayer;
     private DistanceJoint2D leftJoint;
     private DistanceJoint2D rightJoint;
 
+    public int GetPointValue() => pointValues[(int)size];
+    public float GetClumsinessModifier() => clumsinessValues[(int)size];
+
     public void SetGrabbedEnd(PlayerMovement player)
     {
-        Debug.Log("SetGrabbedEnd called by: " + player.name);
+        Debug.Log("SetGrabbedEnd: " + player.name);
 
-        // Assign the player to whichever end is still free
-        if (leftEndPlayer == null)
+        bool leftFree = leftEndPlayer == null;
+        bool rightFree = rightEndPlayer == null;
+
+        if (leftFree && rightFree)
         {
-            Debug.Log("First end grabbed, anchoring player");
+            // First grab
             leftEndPlayer = player;
-
-            // Anchor the first player until the second one grabs the other end
             GetComponent<Rigidbody2D>().constraints = RigidbodyConstraints2D.FreezeAll;
             player.SetAnchored(true);
+            player.SetHeldBamboo(this);
+        }
+        else if (!leftFree && rightFree && leftEndPlayer != player)
+        {
+            // Second grab from the right end
+            rightEndPlayer = player;
+            leftEndPlayer.SetAnchored(false);
+            GetComponent<Rigidbody2D>().constraints = RigidbodyConstraints2D.None;
+            player.SetHeldBamboo(this);
+            LinkPlayers();
+        }
+        else if (leftFree && !rightFree && rightEndPlayer != player)
+        {
+            // Second grab from the left end (first player grabbed right)
+            leftEndPlayer = player;
+            rightEndPlayer.SetAnchored(false);
+            GetComponent<Rigidbody2D>().constraints = RigidbodyConstraints2D.None;
+            player.SetHeldBamboo(this);
+            LinkPlayers();
+        }
+    }
+
+    public void ReleasePlayer(PlayerMovement player)
+    {
+        if (player == leftEndPlayer)
+        {
+            if (leftJoint != null) { Destroy(leftJoint); leftJoint = null; }
+            ResetEndForPlayer(player);
+            leftEndPlayer = null;
+        }
+        else if (player == rightEndPlayer)
+        {
+            if (rightJoint != null) { Destroy(rightJoint); rightJoint = null; }
+            ResetEndForPlayer(player);
+            rightEndPlayer = null;
+        }
+        else return;
+
+        player.SetClumsiness(0f);
+        player.SetHeldBamboo(null);
+
+        // Re-anchor the remaining player and freeze bamboo
+        PlayerMovement remaining = leftEndPlayer ?? rightEndPlayer;
+        if (remaining != null)
+        {
+            GetComponent<Rigidbody2D>().constraints = RigidbodyConstraints2D.FreezeAll;
+            remaining.SetAnchored(true);
         }
         else
         {
-            Debug.Log("Second end grabbed, linking players");
-            rightEndPlayer = player;
-
-            // Both ends are now grabbed, release the first player's anchor
-            leftEndPlayer.SetAnchored(false);
             GetComponent<Rigidbody2D>().constraints = RigidbodyConstraints2D.None;
+        }
+    }
 
-            // Physically link both players to the bamboo using joints
-            LinkPlayers();
+    private void ResetEndForPlayer(PlayerMovement player)
+    {
+        foreach (var end in GetComponentsInChildren<BambooEnd>())
+        {
+            if (end.HeldByPlayer == player)
+            {
+                end.ResetEnd();
+                break;
+            }
         }
     }
 
     private void LinkPlayers()
     {
         Rigidbody2D bambooRb = GetComponent<Rigidbody2D>();
-
-        // Get each player's Rigidbody2D so the joint can connect them
         Rigidbody2D leftRb = leftEndPlayer.GetComponent<Rigidbody2D>();
         Rigidbody2D rightRb = rightEndPlayer.GetComponent<Rigidbody2D>();
 
         if (leftRb == null || rightRb == null || bambooRb == null)
         {
-            Debug.LogError("Missing Rigidbody2D on one of the objects!");
+            Debug.LogError("Missing Rigidbody2D for bamboo link!");
             return;
         }
 
-        // Create a joint on the bamboo connecting it to the left player
         leftJoint = gameObject.AddComponent<DistanceJoint2D>();
         leftJoint.connectedBody = leftRb;
         leftJoint.autoConfigureDistance = true;
 
-        // Create a joint on the bamboo connecting it to the right player
         rightJoint = gameObject.AddComponent<DistanceJoint2D>();
         rightJoint.connectedBody = rightRb;
         rightJoint.autoConfigureDistance = true;
 
-        Debug.Log("Players linked to bamboo!");
+        float c = GetClumsinessModifier();
+        leftEndPlayer.SetClumsiness(c);
+        rightEndPlayer.SetClumsiness(c);
+
+        Debug.Log("Players linked! Clumsiness: " + c);
     }
 
     public void UnlinkPlayers()
     {
-        // Remove the joints to disconnect the players from the bamboo
-        if (leftJoint != null) Destroy(leftJoint);
-        if (rightJoint != null) Destroy(rightJoint);
+        if (leftJoint != null) { Destroy(leftJoint); leftJoint = null; }
+        if (rightJoint != null) { Destroy(rightJoint); rightJoint = null; }
 
-        // Clear the stored player references so the bamboo can be grabbed again
+        if (leftEndPlayer != null) { leftEndPlayer.SetClumsiness(0); leftEndPlayer.SetHeldBamboo(null); leftEndPlayer.SetAnchored(false); }
+        if (rightEndPlayer != null) { rightEndPlayer.SetClumsiness(0); rightEndPlayer.SetHeldBamboo(null); rightEndPlayer.SetAnchored(false); }
+
         leftEndPlayer = null;
         rightEndPlayer = null;
-
-        Debug.Log("Players unlinked from bamboo.");
     }
 }
