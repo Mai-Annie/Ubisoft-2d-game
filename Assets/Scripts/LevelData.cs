@@ -8,4 +8,12 @@ public class LevelData : ScriptableObject
     public bool isCompleted;
     public int attempts;
     public int highScore;
+
+    public void RecordAttempt() => attempts++;
+
+    public void RecordCompletion(int score)
+    {
+        isCompleted = true;
+        if (score > highScore) highScore = score;
+    }
 }

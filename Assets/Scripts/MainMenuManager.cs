@@ -3,58 +3,52 @@ using UnityEngine.SceneManagement;
 
 public class MainMenuManager : MonoBehaviour
 {
-    public static MainMenuManager _ ;
+    public static MainMenuManager Instance { get; private set; }
 
-    [SerializeField] private bool _debugMode;
+    [SerializeField] private bool debugMode;
     [SerializeField] private LevelDatabase levelDatabase;
 
-    public enum MainMenuButtons { play, quit }
+    public enum MenuButton { Play, Quit }
 
     private void Awake()
     {
-        if (_ == null) _ = this;
-        else Debug.LogError("More than one MainMenuManager in scene");
+        if (Instance != null) { Destroy(gameObject); return; }
+        Instance = this;
     }
 
-    public void MainMenuButtonClicked(MainMenuButtons buttonClicked)
+    public void OnMenuButtonClicked(MenuButton button)
     {
-        debugMessage("Button Clicked: " + buttonClicked);
-        switch (buttonClicked)
+        if (debugMode) Debug.Log("Button clicked: " + button);
+        switch (button)
         {
-            case MainMenuButtons.play: playGame(); break;
-            case MainMenuButtons.quit: quitGame(); break;
-            default: Debug.Log("Unhandled button in MainMenuManager"); break;
+            case MenuButton.Play: PlayGame(); break;
+            case MenuButton.Quit: QuitGame(); break;
+            default: Debug.LogWarning("Unhandled MenuButton: " + button); break;
         }
     }
 
-    public void playGame()
+    public void PlayGame()
     {
         if (levelDatabase != null)
         {
             LevelData level = levelDatabase.GetFirstAvailableLevel();
             if (level != null)
             {
-                level.attempts++;
+                level.RecordAttempt();
                 SceneManager.LoadScene(level.sceneName);
                 return;
             }
-            Debug.LogWarning("No available levels found in database, falling back to build index 1");
+            Debug.LogWarning("No available levels in database — falling back to build index 1");
         }
-        // Fallback: load the first level by build index (index 0 = Main Menu)
         SceneManager.LoadScene(1);
     }
 
-    public void quitGame()
+    public void QuitGame()
     {
-        #if UNITY_EDITOR
-            UnityEditor.EditorApplication.ExitPlaymode();
-        #else
-            Application.Quit();
-        #endif
-    }
-
-    private void debugMessage(string message)
-    {
-        if (_debugMode) Debug.Log(message);
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.ExitPlaymode();
+#else
+        Application.Quit();
+#endif
     }
 }

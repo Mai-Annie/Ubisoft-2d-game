@@ -22,6 +22,11 @@ public class GameManager : MonoBehaviour
         Instance = this;
     }
 
+    private void OnDestroy()
+    {
+        if (Instance == this) Instance = null;
+    }
+
     private void Start()
     {
         timeRemaining = levelTimeLimit;
@@ -44,7 +49,6 @@ public class GameManager : MonoBehaviour
         if (!levelActive) return;
         int timeBonus = Mathf.RoundToInt(timeRemaining);
         score += pointValue + timeBonus;
-        Debug.Log($"Delivered! +{pointValue} pts + {timeBonus} time bonus = {score} total");
         CompleteLevel();
     }
 
@@ -52,18 +56,10 @@ public class GameManager : MonoBehaviour
     {
         levelActive = false;
 
-        string currentScene = SceneManager.GetActiveScene().name;
         if (levelDatabase != null)
         {
-            foreach (var level in levelDatabase.levels)
-            {
-                if (level.sceneName == currentScene)
-                {
-                    level.isCompleted = true;
-                    if (score > level.highScore) level.highScore = score;
-                    break;
-                }
-            }
+            string currentScene = SceneManager.GetActiveScene().name;
+            levelDatabase.GetLevelByScene(currentScene)?.RecordCompletion(score);
             LevelData next = levelDatabase.GetNextLevel(currentScene);
             if (next != null) next.isAvailable = true;
         }
@@ -75,16 +71,19 @@ public class GameManager : MonoBehaviour
     private void OnTimeOut()
     {
         levelActive = false;
+
+        if (levelDatabase != null)
+            levelDatabase.GetLevelByScene(SceneManager.GetActiveScene().name)?.RecordAttempt();
+
         HUDManager.Instance?.ShowMessage("Time's Up!");
         Invoke(nameof(ReloadLevel), 2f);
     }
 
     private void LoadNextScene()
     {
-        string currentScene = SceneManager.GetActiveScene().name;
         if (levelDatabase != null)
         {
-            LevelData next = levelDatabase.GetNextLevel(currentScene);
+            LevelData next = levelDatabase.GetNextLevel(SceneManager.GetActiveScene().name);
             if (next != null) { SceneManager.LoadScene(next.sceneName); return; }
         }
         int nextIndex = SceneManager.GetActiveScene().buildIndex + 1;
@@ -96,14 +95,6 @@ public class GameManager : MonoBehaviour
 
     private void ReloadLevel()
     {
-        if (levelDatabase != null)
-        {
-            string current = SceneManager.GetActiveScene().name;
-            foreach (var level in levelDatabase.levels)
-            {
-                if (level.sceneName == current) { level.attempts++; break; }
-            }
-        }
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 }

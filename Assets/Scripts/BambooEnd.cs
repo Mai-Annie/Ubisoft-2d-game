@@ -2,27 +2,32 @@ using UnityEngine;
 
 public class BambooEnd : MonoBehaviour
 {
-    public bool isGrabbed = false;
+    public bool IsGrabbed { get; private set; }
     public PlayerMovement HeldByPlayer { get; private set; }
+
+    private Bamboo bamboo;
+
+    private void Awake()
+    {
+        bamboo = GetComponentInParent<Bamboo>();
+        if (bamboo == null) Debug.LogError("BambooEnd has no Bamboo in parent!", this);
+    }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (!collision.CompareTag("Player") || isGrabbed) return;
+        if (IsGrabbed || !collision.CompareTag("Player")) return;
 
         PlayerMovement player = collision.GetComponent<PlayerMovement>();
-        if (player == null) { Debug.LogError("PlayerMovement not found on collider!"); return; }
+        if (player == null) { Debug.LogError("Player-tagged object missing PlayerMovement!", collision.gameObject); return; }
 
-        Bamboo bamboo = transform.parent.GetComponent<Bamboo>();
-        if (bamboo == null) { Debug.LogError("Bamboo not found on parent!"); return; }
-
-        isGrabbed = true;
+        IsGrabbed = true;
         HeldByPlayer = player;
-        bamboo.SetGrabbedEnd(player);
+        bamboo.OnEndGrabbed(player);
     }
 
     public void ResetEnd()
     {
-        isGrabbed = false;
+        IsGrabbed = false;
         HeldByPlayer = null;
     }
 }

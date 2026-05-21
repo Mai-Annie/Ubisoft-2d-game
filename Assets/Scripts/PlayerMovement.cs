@@ -43,7 +43,6 @@ public class PlayerMovement : MonoBehaviour
     {
         if (isAnchored) return;
         targetMoveInput = inputActions.Player.Move.ReadValue<Vector2>();
-        // Clumsiness: sluggish input response when carrying bamboo
         float responsiveness = Mathf.Lerp(20f, 4f, clumsinessModifier);
         moveInput = Vector2.Lerp(moveInput, targetMoveInput, Time.deltaTime * responsiveness);
     }

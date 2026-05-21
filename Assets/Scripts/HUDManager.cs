@@ -17,6 +17,11 @@ public class HUDManager : MonoBehaviour
         BuildCanvas();
     }
 
+    private void OnDestroy()
+    {
+        if (Instance == this) Instance = null;
+    }
+
     private void BuildCanvas()
     {
         GameObject canvasGO = new GameObject("HUDCanvas");

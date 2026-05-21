@@ -7,7 +7,7 @@ public class DeliveryZone : MonoBehaviour
         Bamboo bamboo = collision.GetComponent<Bamboo>();
         if (bamboo == null) return;
 
-        GameManager.Instance?.OnBambooDelivered(bamboo.GetPointValue());
+        GameManager.Instance?.OnBambooDelivered(bamboo.PointValue);
         bamboo.UnlinkPlayers();
         Destroy(bamboo.gameObject);
     }

@@ -6,47 +6,55 @@ public class Bamboo : MonoBehaviour
 
     [SerializeField] private BambooSize size = BambooSize.Small;
 
-    private static readonly int[] pointValues = { 10, 25, 50 };
-    private static readonly float[] clumsinessValues = { 0.2f, 0.45f, 0.7f };
+    private static readonly int[] PointValues = { 10, 25, 50 };
+    private static readonly float[] ClumsinessValues = { 0.2f, 0.45f, 0.7f };
 
     private PlayerMovement leftEndPlayer;
     private PlayerMovement rightEndPlayer;
     private DistanceJoint2D leftJoint;
     private DistanceJoint2D rightJoint;
+    private Rigidbody2D rb;
+    private Collider2D solidCollider;
+    private BambooEnd[] ends;
 
-    public int GetPointValue() => pointValues[(int)size];
-    public float GetClumsinessModifier() => clumsinessValues[(int)size];
+    public int PointValue => PointValues[(int)size];
+    public float ClumsinessModifier => ClumsinessValues[(int)size];
 
-    public void SetGrabbedEnd(PlayerMovement player)
+    private void Awake()
     {
-        Debug.Log("SetGrabbedEnd: " + player.name);
+        rb = GetComponent<Rigidbody2D>();
+        ends = GetComponentsInChildren<BambooEnd>();
+        foreach (var col in GetComponents<Collider2D>())
+        {
+            if (!col.isTrigger) { solidCollider = col; break; }
+        }
+    }
 
+    public void OnEndGrabbed(PlayerMovement player)
+    {
         bool leftFree = leftEndPlayer == null;
         bool rightFree = rightEndPlayer == null;
 
         if (leftFree && rightFree)
         {
-            // First grab
             leftEndPlayer = player;
-            GetComponent<Rigidbody2D>().constraints = RigidbodyConstraints2D.FreezeAll;
+            rb.constraints = RigidbodyConstraints2D.FreezeAll;
             player.SetAnchored(true);
             player.SetHeldBamboo(this);
         }
         else if (!leftFree && rightFree && leftEndPlayer != player)
         {
-            // Second grab from the right end
             rightEndPlayer = player;
             leftEndPlayer.SetAnchored(false);
-            GetComponent<Rigidbody2D>().constraints = RigidbodyConstraints2D.None;
+            rb.constraints = RigidbodyConstraints2D.None;
             player.SetHeldBamboo(this);
             LinkPlayers();
         }
         else if (leftFree && !rightFree && rightEndPlayer != player)
         {
-            // Second grab from the left end (first player grabbed right)
             leftEndPlayer = player;
             rightEndPlayer.SetAnchored(false);
-            GetComponent<Rigidbody2D>().constraints = RigidbodyConstraints2D.None;
+            rb.constraints = RigidbodyConstraints2D.None;
             player.SetHeldBamboo(this);
             LinkPlayers();
         }
@@ -71,40 +79,35 @@ public class Bamboo : MonoBehaviour
         player.SetClumsiness(0f);
         player.SetHeldBamboo(null);
 
-        // Re-anchor the remaining player and freeze bamboo
         PlayerMovement remaining = leftEndPlayer ?? rightEndPlayer;
         if (remaining != null)
         {
-            GetComponent<Rigidbody2D>().constraints = RigidbodyConstraints2D.FreezeAll;
+            rb.constraints = RigidbodyConstraints2D.FreezeAll;
             remaining.SetAnchored(true);
         }
         else
         {
-            GetComponent<Rigidbody2D>().constraints = RigidbodyConstraints2D.None;
+            if (solidCollider != null) solidCollider.enabled = true;
+            rb.constraints = RigidbodyConstraints2D.None;
         }
     }
 
     private void ResetEndForPlayer(PlayerMovement player)
     {
-        foreach (var end in GetComponentsInChildren<BambooEnd>())
+        foreach (var end in ends)
         {
-            if (end.HeldByPlayer == player)
-            {
-                end.ResetEnd();
-                break;
-            }
+            if (end.HeldByPlayer == player) { end.ResetEnd(); break; }
         }
     }
 
     private void LinkPlayers()
     {
-        Rigidbody2D bambooRb = GetComponent<Rigidbody2D>();
         Rigidbody2D leftRb = leftEndPlayer.GetComponent<Rigidbody2D>();
         Rigidbody2D rightRb = rightEndPlayer.GetComponent<Rigidbody2D>();
 
-        if (leftRb == null || rightRb == null || bambooRb == null)
+        if (leftRb == null || rightRb == null)
         {
-            Debug.LogError("Missing Rigidbody2D for bamboo link!");
+            Debug.LogError("Player missing Rigidbody2D — cannot link!", this);
             return;
         }
 
@@ -116,11 +119,10 @@ public class Bamboo : MonoBehaviour
         rightJoint.connectedBody = rightRb;
         rightJoint.autoConfigureDistance = true;
 
-        float c = GetClumsinessModifier();
-        leftEndPlayer.SetClumsiness(c);
-        rightEndPlayer.SetClumsiness(c);
+        if (solidCollider != null) solidCollider.enabled = false;
 
-        Debug.Log("Players linked! Clumsiness: " + c);
+        leftEndPlayer.SetClumsiness(ClumsinessModifier);
+        rightEndPlayer.SetClumsiness(ClumsinessModifier);
     }
 
     public void UnlinkPlayers()
@@ -128,8 +130,8 @@ public class Bamboo : MonoBehaviour
         if (leftJoint != null) { Destroy(leftJoint); leftJoint = null; }
         if (rightJoint != null) { Destroy(rightJoint); rightJoint = null; }
 
-        if (leftEndPlayer != null) { leftEndPlayer.SetClumsiness(0); leftEndPlayer.SetHeldBamboo(null); leftEndPlayer.SetAnchored(false); }
-        if (rightEndPlayer != null) { rightEndPlayer.SetClumsiness(0); rightEndPlayer.SetHeldBamboo(null); rightEndPlayer.SetAnchored(false); }
+        if (leftEndPlayer != null) { leftEndPlayer.SetClumsiness(0f); leftEndPlayer.SetHeldBamboo(null); leftEndPlayer.SetAnchored(false); }
+        if (rightEndPlayer != null) { rightEndPlayer.SetClumsiness(0f); rightEndPlayer.SetHeldBamboo(null); rightEndPlayer.SetAnchored(false); }
 
         leftEndPlayer = null;
         rightEndPlayer = null;
